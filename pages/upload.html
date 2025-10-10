@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>FaaS - Upload Function</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .header { text-align: center; color: white; margin-bottom: 40px; }
+        .header h1 { font-size: 48px; margin-bottom: 10px; }
+        .header p { font-size: 18px; opacity: 0.9; }
+        .card { background: white; border-radius: 16px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .form-group { margin-bottom: 30px; }
+        label { display: block; font-weight: 600; color: #333; margin-bottom: 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+        textarea, input[type='text'] { width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: 'Courier New', monospace; transition: all 0.3s; }
+        textarea:focus, input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        textarea { min-height: 200px; resize: vertical; }
+        .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; transition: transform 0.2s, box-shadow 0.2s; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); }
+        .btn:active { transform: translateY(0); }
+        .example { background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea; margin-top: 10px; }
+        .example pre { font-size: 12px; overflow-x: auto; }
+        .info { color: #666; font-size: 13px; margin-top: 5px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        .result { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; }
+        .result.success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .result.error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>🚀 FaaS Platform</h1>
+            <p>Upload & Deploy Functions in Real-Time</p>
+        </div>
+        
+        <div class='card'>
+            <form id='uploadForm' enctype='multipart/form-data'>
+                <div class='form-group'>
+                    <label>Function Code File</label>
+                    <input type='file' id='code' name='code' accept='.c,.cpp,.py,.rs,.go,.php,.js,.wasm' required>
+                    <p class='info'>Supported: C, C++, Python, Rust, Go, PHP, JavaScript, WASM</p>
+                </div>
+                
+                <div class='form-group'>
+                    <label>Descriptor File (JSON)</label>
+                    <input type='file' id='descriptor' name='descriptor' accept='.json' required>
+                    <div class='example'>
+                        <strong>Example:</strong>
+                        <pre>{
+  "method": "POST",
+  "runtime": "python",
+  "memory": 128,
+  "timeout": 10
+}</pre>
+                        <strong>Supported runtime:</strong>
+                        <ul style='margin-top: 10px; padding-left: 20px;'>
+                            <li>c, cpp - Compiled with emscripten</li>
+                            <li>rust - Compiled with rustc</li>
+                            <li>python - Compiled with py2wasm</li>
+                            <li>tinygo, go - Compiled with tinygo</li>
+                        </ul>
+                    </div>
+                    <p class='info'>Function name, module path, handler, and URI are auto-generated</p>
+                </div>
+                
+                <button type='submit' class='btn'>📤 Upload & Deploy Function</button>
+            </form>
+            
+            <div id='result' class='result'></div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const codeFile = document.getElementById('code').files[0];
+            const descriptorFile = document.getElementById('descriptor').files[0];
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = '⏳ Uploading...';
+            resultDiv.className = 'result';
+            
+            if (!codeFile || !descriptorFile) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Please select both files';
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('code', codeFile);
+            formData.append('descriptor', descriptorFile);
+            
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    const info = result.info || 'Function deployed!';
+                    let message = '✅ ' + result.message + '\n';
+                    if (result.uri) {
+                        const fullUrl = window.location.origin + result.uri;
+                        message += '\n📍 URI: ' + result.uri;
+                        message += '\n🔗 Full URL: ' + fullUrl;
+                        if (result.method) {
+                            message += '\n🌐 Method: ' + result.method;
+                        }
+                        message += '\n\n💡 Test with:\ncurl -X ' + (result.method || 'POST') + ' ' + fullUrl + ' -d \'{"test":"data"}\'';
+                    }
+                    message += '\n\nℹ️ ' + info;
+                    resultDiv.innerHTML = '<pre style="white-space: pre-wrap; font-family: monospace;">' + message + '</pre>';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = '❌ Error: ' + (result.error || result.details || 'Upload failed');
+                }
+            } catch (err) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Network error: ' + err.message;
+            }
+        });
+    </script>
+</body>
+</html>
+

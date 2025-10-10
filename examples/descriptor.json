@@ -1,0 +1,7 @@
+{
+  "runtime": "c",
+  "method": "POST",
+  "memory": 128,
+  "timeout": 5
+}
+

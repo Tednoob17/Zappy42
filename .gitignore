@@ -1,0 +1,31 @@
+# Build directory
+build/
+*.o
+
+# Archive directory
+archive/
+
+# Binaries (if built at root)
+worker
+gateway
+lb
+kv
+
+# Database
+faas_meta.db
+faas_meta.db-journal
+
+# Unix sockets
+*.sock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
