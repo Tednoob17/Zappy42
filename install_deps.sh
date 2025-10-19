@@ -14,6 +14,10 @@ echo ""
 echo "[2/3] Installing build tools (gcc, make, etc.)..."
 sudo apt-get install -y build-essential
 
+# Install wasmer
+
+curl https://get.wasmer.io -sSfL | sh
+source /home/$USER/.wasmer/wasmer.sh
 # Install SQLite3
 echo ""
 echo "[3/3] Installing SQLite3..."
