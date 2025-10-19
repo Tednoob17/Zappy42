@@ -37,7 +37,7 @@ HTTP Client (curl, browser, etc.)
 ### Tips : 
 - It possible thatduring install or test you need to run some script or command with `sudo` command, because
 we need it to install some tools and dependancy, you can check our script if you want `start.sh`, `install_deps.sh`, `start.sh`, `clean.sh`.
-- We recommend also to do a `chmod a+x *.sh` for add execution right on all script .
+- We recommend also to do a `chmod a+x *.sh` for add right of execution on all script .
 
 ### Option 1: Using shell scripts (recommended)
 ```bash
