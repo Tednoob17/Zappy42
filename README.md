@@ -55,7 +55,7 @@ chmod +x *.sh
 make
 
 # Initialize database and start
-make start
+make start 2> /dev/null
 
 # Stop
 make stop
