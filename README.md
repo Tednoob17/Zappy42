@@ -34,6 +34,11 @@ HTTP Client (curl, browser, etc.)
 
 ## Quick Start
 
+### Tips : 
+- It possible thatduring install or test you need to run some script or command with `sudo` command, because
+we need it to install some tools and dependancy, you can check our script if you want `start.sh`, `install_deps.sh`, `start.sh`, `clean.sh`.
+- We recommend also to do a `chmod a+x *.sh` for add execution right on all script .
+
 ### Option 1: Using shell scripts (recommended)
 ```bash
 # Fix line endings (if on WSL/Windows)
@@ -52,7 +57,7 @@ chmod +x *.sh
 ### Option 2: Using Makefile
 ```bash
 # Build all
-make
+make 2> /dev/null
 
 # Initialize database and start
 make start 2> /dev/null
